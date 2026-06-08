@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  axum-template:
+    name: Build & Run Axum Template Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./axum-template
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Build
+        run: cargo build
+
+      - name: Run Tests
+        run: cargo test
