@@ -4,4 +4,5 @@ port = 3000
 request_timeout_secs = 30
 
 [log]
-filter = "info,axum_template=debug,tower_http=debug"
+filter = "info,api-starter=debug,tower_http=debug"
+

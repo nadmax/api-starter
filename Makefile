@@ -26,8 +26,8 @@ lint:
 
 ## docker-build: Build Docker image
 docker-build:
-	docker build -t server .
+	docker build -t api .
 
 ## docker-run: Run a container from the built image
 docker-run:
-	docker run -p 3000:3000 server
+	docker run -p 3000:3000 api

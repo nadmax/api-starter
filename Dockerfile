@@ -12,14 +12,14 @@ RUN cargo chef cook --release --locked --recipe-path recipe.json
 COPY ./ ./
 COPY migrations ./migrations
 ENV SQLX_OFFLINE=true
-RUN cargo build --release --locked --bin server
+RUN cargo build --release --locked --bin api
 
 FROM alpine:3.23 AS runtime
 RUN apk add --no-cache ca-certificates && \
     addgroup -S app && \
     adduser -S app -G app
 WORKDIR /app
-COPY --from=builder /app/target/release/server ./
+COPY --from=builder /app/target/release/api ./
 USER app
-EXPOSE 8080
-ENTRYPOINT ["./server"]
+EXPOSE 3000
+ENTRYPOINT ["./api"]

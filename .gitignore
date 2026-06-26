@@ -1,9 +1,4 @@
-*build
-*.env
-*target
-*logs
-*.log
-*.local
-*.vscode/*
-*.idea
-.DS_Store
+/target
+/config/local.toml
+.env
+*.env.local

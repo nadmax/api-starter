@@ -1,4 +1,0 @@
-/target
-/config/local.toml
-.env
-*.env.local

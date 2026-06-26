@@ -1,59 +1,126 @@
-# rs-starter
+# api-starter
 
-A curated collection of production-ready Rust project templates.  
-Each template is self-contained, opinionated, and ready to clone.
+This is a template repository to start writing an API in Rust
 
-## Templates
+## Features
 
-### Web & API
-
-| Template | Description |
+| Concern | Choice |
 |---|---|
-| [`axum-template`](./axum-template) | REST API with full CRUD, error handling, validation, and structured logging  |
-### Coming Soon
+| Web framework | [Axum](https://docs.rs/axum) |
+| Async runtime | [Tokio](https://tokio.rs) |
+| Serialization | [Serde JSON](https://serde.rs) |
+| Error handling | [thiserror](https://docs.rs/thiserror) |
+| Validation | [validator](https://docs.rs/validator) |
+| Logging | [tracing](https://docs.rs/tracing) + [tracing-subscriber](https://docs.rs/tracing-subscriber) |
+| Config | [config](https://docs.rs/config) (TOML + env vars) |
+| Request IDs | tower-http `SetRequestId` |
+| CORS | tower-http `CorsLayer` |
+| Timeout | tower-http `TimeoutLayer` |
+| Tests | [axum-test](https://docs.rs/axum-test) |
 
-| Template | Description |
-|---|---|
-| `cli-template` | Command-line tool with subcommands, config file support, and rich terminal output |
-| `worker-template` | Background job processor with graceful shutdown and retry logic |
+## Project layout
 
-## Usage
-
-Each template directory is independently usable. Copy the one you need:
-
-```sh
-# Clone the full repository
-git clone https://github.com/your-org/rs-starter
-
-# Or use cargo-generate to scaffold directly from a template
-cargo generate --git https://github.com/your-org/rs-starter --name my-project
+```
+.
+├── config/
+│   ├── default.toml      # base config, all environments
+│   └── production.toml   # production overrides
+├── src/
+│   ├── main.rs           # entry point
+│   ├── config.rs         # AppConfig (typed config loading)
+│   ├── state.rs          # AppState (shared across handlers)
+│   ├── errors.rs         # ApiError → HTTP response mapping
+│   ├── middleware/
+│   │   └── tracing.rs    # logging init
+│   ├── models.rs        # domain types + request/response DTOs
+│   └── routes/
+│       ├── mod.rs        # router construction + middleware stack
+│       ├── health.rs     # GET /health
+│       └── items.rs      # CRUD /api/v1/items
+└── tests/
+    └── .gitkeep      # write your tests here
 ```
 
-Then follow the `README.md` inside the template directory for setup instructions.
+## Getting started
 
-## Design Principles
+```sh
+# Clone the template
+git clone https://github.com/you/axum-template my-api
+cd my-api
 
-Templates in this repository follow a consistent set of standards:
+# Run in development
+make dev
 
-- **Idiomatic Rust** — borrowing over cloning, `Result`-based error handling, no `unwrap()` in production paths
-- **Layered configuration** — TOML files overridden by environment variables; no hardcoded values
-- **Structured logging** — `tracing` throughout; JSON output in release builds
-- **Tested** — integration tests included and passing before merge
-- **Docker-ready** — multi-stage `Dockerfile` producing a lean runtime image
-- **Lint-clean** — `clippy::pedantic` enabled; `unsafe_code` forbidden
+# Run tests
+make test
 
+# Build optimised release binary
+make build
+```
 
-## Contributing
+The server starts on [http://localhost:3000](http://localhost:3000) by default.
 
-Found a pattern worth generalising? Want to add a new template?
+## Configuration
 
-1. Create a directory named after the template (e.g. `grpc-service`)
-2. Include a standalone `README.md`, working tests, and a `Dockerfile`
-3. Add a row to the table above
-4. Open a pull request with a brief description of the use case
+Override any value via environment variables prefixed with `APP__`:
 
-All templates must pass `cargo clippy --all-targets -- -D warnings` and `cargo test` before merge.
+```sh
+APP__SERVER__PORT=8080 cargo run
+```
 
-## License
+Or add a `config/local.toml` (git-ignored):
 
-This project is licensed under the MIT License.
+```toml
+[server]
+port = 8080
+```
+
+Environment (`APP_ENV`) can be `development` (default), `production`, or any custom name — a matching `config/{APP_ENV}.toml` file will be loaded automatically.
+
+## API reference
+
+### Health
+
+```
+GET /health           → 200 OK
+```
+
+### Items
+
+```
+GET    /api/v1/items          → 200  { data, total, page, per_page }
+POST   /api/v1/items          → 201  Item
+GET    /api/v1/items/:id      → 200  Item | 404
+PUT    /api/v1/items/:id      → 200  Item | 404
+DELETE /api/v1/items/:id      → 204       | 404
+```
+
+### Error shape
+
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "resource not found"
+  }
+}
+```
+
+Internal errors include a `request_id` for correlation with server logs.
+
+## Docker
+
+```sh
+# Build Docker image
+make docker-build
+
+# Run Docker image
+make docker-run
+```
+
+## Extending the template
+
+1. **Add a database** – put an SQLx pool in `AppState` and swap the in-memory store in `routes/items.rs` for real queries.
+2. **Authentication** – add a `middleware/auth.rs` extractor and protect routes with `.route_layer(...)`.
+3. **New resource** – copy `routes/items.rs`, rename types, and `nest` the new router in `routes/mod.rs`.
+

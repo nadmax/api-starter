@@ -1,8 +1,8 @@
 [package]
-name = "axum-template"
+name = "api-starter"
 version = "0.1.0"
 edition = "2024"
-description = "Production-ready Axum REST API template"
+description = "Starter template to write an API"
 license = "MIT"
 
 [[bin]]
@@ -10,24 +10,29 @@ name = "server"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.102"
+anyhow = "1.0.103"
 axum = { version = "0.8.9", features = ["macros"] }
 axum-extra = { version = "0.12.6", features = ["typed-header"] }
 tower = { version = "0.5.3", features = ["util"] }
-tower-http = { version = "0.6.11", features = ["cors", "trace", "request-id", "timeout"] }
+tower-http = { version = "0.7.0", features = [
+    "cors",
+    "trace",
+    "request-id",
+    "timeout",
+] }
 tokio = { version = "1.52.3", features = ["full"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
 thiserror = "2.0.18"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
-config = "0.15.23"
+config = "0.15.25"
 validator = { version = "0.20.0", features = ["derive"] }
 uuid = { version = "1.23.2", features = ["v4", "serde"] }
 chrono = { version = "0.4.45", features = ["serde"] }
 
 [dev-dependencies]
-axum-test = "20.1.0"
+axum-test = "21.0.0"
 tokio-test = "0.4.5"
 serde_json = "1.0.150"
 
@@ -36,3 +41,4 @@ opt-level = 3
 lto = true
 codegen-units = 1
 strip = true
+
